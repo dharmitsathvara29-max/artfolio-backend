@@ -1,0 +1,671 @@
+{
+  "info": {
+    "_postman_id": "729ec897-c2a7-4c25-823e-670d5a246e60",
+    "name": "ArtFolio REST API Collection",
+    "description": "Comprehensive API collection for ArtFolio - Digital Art Portfolio & Gallery Backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "artworkId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "artistId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Artist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maya Lin\",\n  \"email\": \"maya@artfolio.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"artist\",\n  \"bio\": \"Digital landscape artist and visual world-builder\",\n  \"portfolioTags\": [\"digital\", \"concept-art\", \"environment\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Visitor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ritu Sharma\",\n  \"email\": \"ritu@artfolio.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"visitor\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maya@artfolio.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Artworks",
+      "item": [
+        {
+          "name": "Browse Artworks (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/artworks?category=Digital Painting&tag=landscape",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "artworks"],
+              "query": [
+                { "key": "category", "value": "Digital Painting" },
+                { "key": "tag", "value": "landscape" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Artwork by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/artworks/{{artworkId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "artworks", "{{artworkId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Artwork (Artist Only, Multipart)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Sunset Dreams",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Atmospheric digital landscape with neon twilight hues over rolling mountains.",
+                  "type": "text"
+                },
+                {
+                  "key": "tags",
+                  "value": "nature, landscape, sunset",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "Digital Painting",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "5000",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/artworks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "artworks"]
+            }
+          }
+        },
+        {
+          "name": "Update Artwork (Owner Only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Sunset Dreams (Remastered Edition)",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "6000",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/artworks/{{artworkId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "artworks", "{{artworkId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Artwork (Owner or Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/artworks/{{artworkId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "artworks", "{{artworkId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Artists",
+      "item": [
+        {
+          "name": "List All Artists",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/artists",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "artists"]
+            }
+          }
+        },
+        {
+          "name": "Get Artist Profile & Portfolio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/artists/{{artistId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "artists", "{{artistId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Artist Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Senior Digital Matte Painter & Concept Artist based in Mumbai.\",\n  \"portfolioTags\": [\"concept\", \"matte-painting\", \"scifi\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/artists/{{artistId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "artists", "{{artistId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Add Comment to Artwork",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"artworkId\": \"{{artworkId}}\",\n  \"text\": \"The lighting and atmospheric depth in this piece are breathtaking!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments"]
+            }
+          }
+        },
+        {
+          "name": "Get Artwork Comments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/comments/artwork/{{artworkId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments", "artwork", "{{artworkId}}"]
+            }
+          }
+        },
+        {
+          "name": "List All Comments (Admin / Debug)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Likes",
+      "item": [
+        {
+          "name": "Like Artwork",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"artworkId\": \"{{artworkId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/likes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "likes"]
+            }
+          }
+        },
+        {
+          "name": "List Likes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/likes?artworkId={{artworkId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "likes"],
+              "query": [
+                { "key": "artworkId", "value": "{{artworkId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Unlike Artwork",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/likes/{{likeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "likes", "{{likeId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Commissions",
+      "item": [
+        {
+          "name": "Request a Commission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"artistId\": \"{{artistId}}\",\n  \"description\": \"Custom digital artwork in your signature style for my home studio.\",\n  \"budget\": 15000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/commissions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "commissions"]
+            }
+          }
+        },
+        {
+          "name": "Get Commissions for Artist",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/commissions/artist/{{artistId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "commissions", "artist", "{{artistId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Commission Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/commissions/{{commissionId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "commissions", "{{commissionId}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sales",
+      "item": [
+        {
+          "name": "Record Print Sale",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"artworkId\": \"{{artworkId}}\",\n  \"buyerName\": \"Ritu Sharma\",\n  \"buyerEmail\": \"ritu@artfolio.com\",\n  \"amount\": 5000,\n  \"saleType\": \"print\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sales",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sales"]
+            }
+          }
+        },
+        {
+          "name": "Get Artist Sales & Earnings Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sales/artist/{{artistId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sales", "artist", "{{artistId}}"]
+            }
+          }
+        },
+        {
+          "name": "List All Sales (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sales",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sales"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Moderation",
+      "item": [
+        {
+          "name": "List Artworks for Moderation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/artworks?status=pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "artworks"],
+              "query": [
+                { "key": "status", "value": "pending" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Moderate Artwork (Feature / Approve / Reject)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"featured\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/moderate/{{artworkId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "moderate", "{{artworkId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get My Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "my"]
+            }
+          }
+        },
+        {
+          "name": "Send Manual Notification (Testing / Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"{{artistId}}\",\n  \"type\": \"new_commission\",\n  \"message\": \"You received a custom commission request!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            }
+          }
+        },
+        {
+          "name": "Mark All Notifications as Read",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/mark-all-read",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "mark-all-read"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
