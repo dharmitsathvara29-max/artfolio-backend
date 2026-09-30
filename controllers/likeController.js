@@ -1,7 +1,6 @@
 const Like = require('../models/Like');
 const Artwork = require('../models/Artwork');
-const Notification = require('../models/Notification');
-const { emitNotification } = require('../sockets/notificationSocket');
+const { sendNotification } = require('../sockets/notificationSocket');
 
 /**
  * @desc    Like an artwork
@@ -14,48 +13,26 @@ const addLike = async (req, res, next) => {
 
     const artwork = await Artwork.findById(artworkId);
     if (!artwork) {
-      return res.status(404).json({
-        success: false,
-        message: 'Artwork not found'
-      });
+      return res.status(404).json({ success: false, message: 'Artwork not found' });
     }
 
     // Check if user has already liked this artwork
-    const existingLike = await Like.findOne({
-      artwork: artwork._id,
-      user: req.user.id
-    });
-
+    const existingLike = await Like.findOne({ artwork: artwork._id, user: req.user.id });
     if (existingLike) {
-      return res.status(400).json({
-        success: false,
-        message: 'You have already liked this artwork'
-      });
+      return res.status(400).json({ success: false, message: 'You have already liked this artwork' });
     }
 
-    // Create like
-    const like = await Like.create({
-      artwork: artwork._id,
-      user: req.user.id
-    });
-
-    // Increment artwork likesCount
+    const like = await Like.create({ artwork: artwork._id, user: req.user.id });
     artwork.likesCount = (artwork.likesCount || 0) + 1;
     await artwork.save();
 
-    // Create notification for artist if liker is not the artwork owner
     if (artwork.artist.toString() !== req.user.id) {
-      const likerName = req.user.name || 'Someone';
-      const notification = await Notification.create({
+      await sendNotification(req.app.locals.io, {
         recipient: artwork.artist,
         type: 'new_like',
-        message: `${likerName} liked your artwork "${artwork.title}"`,
+        message: `${req.user.name || 'Someone'} liked your artwork "${artwork.title}"`,
         relatedId: artwork._id
       });
-
-      // Emit real-time notification
-      const io = req.app.locals.io;
-      emitNotification(io, artwork.artist, notification);
     }
 
     res.status(201).json({

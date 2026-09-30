@@ -80,8 +80,24 @@ const emitNotification = (io, recipientId, notificationDoc) => {
   }
 };
 
+/**
+ * Create and persist a Notification doc in MongoDB, then emit via Socket.io if recipient is connected.
+ */
+const sendNotification = async (io, { recipient, type, message, relatedId = null }) => {
+  const Notification = require('../models/Notification');
+  const notification = await Notification.create({
+    recipient,
+    type,
+    message,
+    relatedId
+  });
+  emitNotification(io, recipient, notification);
+  return notification;
+};
+
 module.exports = {
   initSocket,
   emitNotification,
+  sendNotification,
   userSocketMap
 };

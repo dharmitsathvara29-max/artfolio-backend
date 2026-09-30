@@ -1,7 +1,6 @@
 const Comment = require('../models/Comment');
 const Artwork = require('../models/Artwork');
-const Notification = require('../models/Notification');
-const { emitNotification } = require('../sockets/notificationSocket');
+const { sendNotification } = require('../sockets/notificationSocket');
 
 /**
  * @desc    Add a comment to an artwork
@@ -14,42 +13,27 @@ const addComment = async (req, res, next) => {
 
     const artwork = await Artwork.findById(artworkId);
     if (!artwork) {
-      return res.status(404).json({
-        success: false,
-        message: 'Artwork not found'
-      });
+      return res.status(404).json({ success: false, message: 'Artwork not found' });
     }
 
-    // Create the comment
     const comment = await Comment.create({
       artwork: artwork._id,
       author: req.user.id,
       text: text.trim()
     });
 
-    // Increment artwork commentsCount
     artwork.commentsCount = (artwork.commentsCount || 0) + 1;
     await artwork.save();
 
-    // Populate author details for response
-    const populatedComment = await Comment.findById(comment._id).populate(
-      'author',
-      'name email profileImageUrl'
-    );
+    const populatedComment = await Comment.findById(comment._id).populate('author', 'name email profileImageUrl');
 
-    // Notify artist if commenter is not the artwork owner
     if (artwork.artist.toString() !== req.user.id) {
-      const commenterName = req.user.name || 'Someone';
-      const notification = await Notification.create({
+      await sendNotification(req.app.locals.io, {
         recipient: artwork.artist,
         type: 'new_comment',
-        message: `${commenterName} commented on your artwork "${artwork.title}"`,
+        message: `${req.user.name || 'Someone'} commented on your artwork "${artwork.title}"`,
         relatedId: artwork._id
       });
-
-      // Emit real-time notification via Socket.io
-      const io = req.app.locals.io;
-      emitNotification(io, artwork.artist, notification);
     }
 
     res.status(201).json({

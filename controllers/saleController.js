@@ -1,7 +1,6 @@
 const Sale = require('../models/Sale');
 const Artwork = require('../models/Artwork');
-const Notification = require('../models/Notification');
-const { emitNotification } = require('../sockets/notificationSocket');
+const { sendNotification } = require('../sockets/notificationSocket');
 
 /**
  * @desc    Record a print/original sale (simulated e-commerce)
@@ -43,17 +42,12 @@ const recordSale = async (req, res, next) => {
       .populate('artwork', 'title imageUrl price')
       .populate('artist', 'name email');
 
-    // Notify artist
-    const notification = await Notification.create({
+    await sendNotification(req.app.locals.io, {
       recipient: artwork.artist,
       type: 'sale_recorded',
       message: `Congratulations! A ${saleType || 'print'} of "${artwork.title}" was sold to ${buyerName} for ₹${saleAmount.toLocaleString('en-IN')}`,
       relatedId: sale._id
     });
-
-    // Emit real-time notification
-    const io = req.app.locals.io;
-    emitNotification(io, artwork.artist, notification);
 
     res.status(201).json({
       success: true,

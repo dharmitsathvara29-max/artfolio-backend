@@ -1,6 +1,6 @@
 const Notification = require('../models/Notification');
 const Artist = require('../models/Artist');
-const { emitNotification } = require('../sockets/notificationSocket');
+const { sendNotification: pushNotification } = require('../sockets/notificationSocket');
 
 /**
  * @desc    Manually send & emit a notification (Admin / Internal / Testing)
@@ -11,25 +11,17 @@ const sendNotification = async (req, res, next) => {
   try {
     const { recipientId, type, message, relatedId } = req.body;
 
-    // Validate recipient exists
     const recipient = await Artist.findById(recipientId);
     if (!recipient) {
-      return res.status(404).json({
-        success: false,
-        message: 'Recipient user not found'
-      });
+      return res.status(404).json({ success: false, message: 'Recipient user not found' });
     }
 
-    const notification = await Notification.create({
+    const notification = await pushNotification(req.app.locals.io, {
       recipient: recipient._id,
       type,
       message: message.trim(),
       relatedId: relatedId || null
     });
-
-    // Emit in real-time if connected
-    const io = req.app.locals.io;
-    emitNotification(io, recipient._id, notification);
 
     res.status(201).json({
       success: true,

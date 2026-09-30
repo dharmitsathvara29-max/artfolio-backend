@@ -1,7 +1,6 @@
 const Commission = require('../models/Commission');
 const Artist = require('../models/Artist');
-const Notification = require('../models/Notification');
-const { emitNotification } = require('../sockets/notificationSocket');
+const { sendNotification } = require('../sockets/notificationSocket');
 
 /**
  * @desc    Request a commission from an artist
@@ -48,18 +47,12 @@ const requestCommission = async (req, res, next) => {
       .populate('artist', 'name email profileImageUrl')
       .populate('requester', 'name email');
 
-    // Create persistent notification for the artist
-    const requesterName = req.user.name || 'A client';
-    const notification = await Notification.create({
+    await sendNotification(req.app.locals.io, {
       recipient: artist._id,
       type: 'new_commission',
-      message: `${requesterName} requested a commission: "${description.substring(0, 50)}..." (Budget: ₹${budget})`,
+      message: `${req.user.name || 'A client'} requested a commission: "${description.substring(0, 50)}..." (Budget: ₹${budget})`,
       relatedId: commission._id
     });
-
-    // Emit real-time notification
-    const io = req.app.locals.io;
-    emitNotification(io, artist._id, notification);
 
     res.status(201).json({
       success: true,

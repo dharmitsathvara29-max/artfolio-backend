@@ -1,7 +1,5 @@
 const Artwork = require('../models/Artwork');
-const Artist = require('../models/Artist');
-const Notification = require('../models/Notification');
-const { emitNotification } = require('../sockets/notificationSocket');
+const { sendNotification } = require('../sockets/notificationSocket');
 
 /**
  * @desc    List all artworks for moderation (all statuses)
@@ -79,15 +77,12 @@ const moderateArtwork = async (req, res, next) => {
       messageText = `⚠️ Your artwork "${artwork.title}" was not approved by content moderation.`;
     }
 
-    const notification = await Notification.create({
+    await sendNotification(req.app.locals.io, {
       recipient: artwork.artist,
-      type: 'new_comment', // status notice
+      type: 'new_comment',
       message: messageText,
       relatedId: artwork._id
     });
-
-    const io = req.app.locals.io;
-    emitNotification(io, artwork.artist, notification);
 
     res.status(200).json({
       success: true,
