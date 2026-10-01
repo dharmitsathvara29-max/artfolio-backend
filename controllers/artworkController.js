@@ -1,7 +1,7 @@
 const Artwork = require('../models/Artwork');
 const Comment = require('../models/Comment');
 const Like = require('../models/Like');
-const { uploadImageBuffer } = require('../config/firebase');
+const { uploadImageBuffer } = require('../config/supabase');
 
 /**
  * Helper to parse tags from array, string, or comma-separated string

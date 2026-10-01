@@ -11,7 +11,7 @@ dotenv.config();
 
 // Configuration imports
 const connectDB = require('./config/db');
-require('./config/firebase'); // Initializes Firebase Admin
+require('./config/supabase'); // Initializes Supabase Storage client
 
 // Socket handler
 const { initSocket } = require('./sockets/notificationSocket');
@@ -66,7 +66,7 @@ const swaggerOptions = {
       title: 'ArtFolio API Documentation',
       version: '1.0.0',
       description:
-        'REST API for ArtFolio — A Digital Art Portfolio & Gallery platform with real-time notifications, Firebase Storage, and role-based access control.',
+        'REST API for ArtFolio — A Digital Art Portfolio & Gallery platform with real-time notifications, Supabase Storage, and role-based access control.',
       contact: {
         name: 'ArtFolio Backend Engineering Team'
       }
