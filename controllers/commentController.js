@@ -2,106 +2,48 @@ const Comment = require('../models/Comment');
 const Artwork = require('../models/Artwork');
 const { sendNotification } = require('../sockets/notificationSocket');
 
-/**
- * @desc    Add a comment to an artwork
- * @route   POST /api/comments
- * @access  Protected
- */
-const addComment = async (req, res, next) => {
+// POST /api/comments
+exports.addComment = async (req, res, next) => {
   try {
     const { artworkId, text } = req.body;
-
     const artwork = await Artwork.findById(artworkId);
-    if (!artwork) {
-      return res.status(404).json({ success: false, message: 'Artwork not found' });
-    }
+    if (!artwork) return res.status(404).json({ success: false, message: 'Artwork not found' });
 
-    const comment = await Comment.create({
-      artwork: artwork._id,
-      author: req.user.id,
-      text: text.trim()
-    });
-
-    artwork.commentsCount = (artwork.commentsCount || 0) + 1;
+    const comment = await Comment.create({ artwork: artwork._id, author: req.user.id, text: text.trim() });
+    artwork.commentsCount += 1;
     await artwork.save();
 
-    const populatedComment = await Comment.findById(comment._id).populate('author', 'name email profileImageUrl');
+    const populated = await comment.populate('author', 'name email profileImageUrl');
 
-    if (artwork.artist.toString() !== req.user.id) {
+    if (artwork.artist.toString() !== req.user.id)
       await sendNotification(req.app.locals.io, {
-        recipient: artwork.artist,
-        type: 'new_comment',
-        message: `${req.user.name || 'Someone'} commented on your artwork "${artwork.title}"`,
+        recipient: artwork.artist, type: 'new_comment',
+        message: `${req.user.name || 'Someone'} commented on "${artwork.title}"`,
         relatedId: artwork._id
       });
-    }
 
-    res.status(201).json({
-      success: true,
-      message: 'Comment added successfully',
-      data: populatedComment
-    });
-  } catch (error) {
-    next(error);
-  }
+    res.status(201).json({ success: true, data: populated });
+  } catch (err) { next(err); }
 };
 
-/**
- * @desc    List all comments (admin/debug, paginated)
- * @route   GET /api/comments
- * @access  Public / Admin debug
- */
-const getAllComments = async (req, res, next) => {
+// GET /api/comments
+exports.getAllComments = async (req, res, next) => {
   try {
     const { page = 1, limit = 20 } = req.query;
-    const pageNum = parseInt(page, 10) || 1;
-    const limitNum = parseInt(limit, 10) || 20;
-    const skip = (pageNum - 1) * limitNum;
-
-    const total = await Comment.countDocuments();
-    const comments = await Comment.find()
-      .populate('author', 'name email profileImageUrl')
-      .populate('artwork', 'title imageUrl')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum);
-
-    res.status(200).json({
-      success: true,
-      count: comments.length,
-      total,
-      page: pageNum,
-      totalPages: Math.ceil(total / limitNum),
-      data: comments
-    });
-  } catch (error) {
-    next(error);
-  }
+    const skip = (Number(page) - 1) * Number(limit);
+    const [total, comments] = await Promise.all([
+      Comment.countDocuments(),
+      Comment.find().populate('author', 'name email').populate('artwork', 'title').sort({ createdAt: -1 }).skip(skip).limit(Number(limit))
+    ]);
+    res.json({ success: true, total, data: comments });
+  } catch (err) { next(err); }
 };
 
-/**
- * @desc    Get comments for a specific artwork
- * @route   GET /api/comments/artwork/:id
- * @access  Public
- */
-const getCommentsByArtwork = async (req, res, next) => {
+// GET /api/comments/artwork/:id
+exports.getCommentsByArtwork = async (req, res, next) => {
   try {
     const comments = await Comment.find({ artwork: req.params.id })
-      .populate('author', 'name email profileImageUrl')
-      .sort({ createdAt: -1 });
-
-    res.status(200).json({
-      success: true,
-      count: comments.length,
-      data: comments
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports = {
-  addComment,
-  getAllComments,
-  getCommentsByArtwork
+      .populate('author', 'name email profileImageUrl').sort({ createdAt: -1 });
+    res.json({ success: true, count: comments.length, data: comments });
+  } catch (err) { next(err); }
 };

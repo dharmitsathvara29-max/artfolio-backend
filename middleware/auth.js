@@ -1,59 +1,22 @@
 const jwt = require('jsonwebtoken');
+const SECRET = process.env.JWT_SECRET || 'artfolio_dev_secret';
 
-/**
- * Middleware to authenticate requests using JWT.
- * Attaches decoded { id, role, email, name } to req.user.
- */
-const auth = async (req, res, next) => {
+exports.auth = (req, res, next) => {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer '))
+    return res.status(401).json({ success: false, message: 'No token provided' });
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authorization denied: No token provided'
-      });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const jwtSecret = process.env.JWT_SECRET || 'artfolio_default_jwt_secret_dev_key';
-
-    try {
-      const decoded = jwt.verify(token, jwtSecret);
-      req.user = decoded; // { id, role, email, name }
-      return next();
-    } catch (jwtErr) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authorization denied: Invalid or expired token'
-      });
-    }
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * Optional auth middleware — populates req.user if valid token is present,
- * but does NOT block the request if the token is absent or invalid.
- */
-const optionalAuth = (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) return next();
-
-    const token = authHeader.split(' ')[1];
-    const jwtSecret = process.env.JWT_SECRET || 'artfolio_default_jwt_secret_dev_key';
-
-    try {
-      req.user = jwt.verify(token, jwtSecret);
-    } catch {
-      req.user = undefined;
-    }
+    req.user = jwt.verify(header.split(' ')[1], SECRET);
     next();
-  } catch (error) {
-    next(error);
+  } catch {
+    res.status(401).json({ success: false, message: 'Invalid or expired token' });
   }
 };
 
-module.exports = { auth, optionalAuth };
+exports.optionalAuth = (req, res, next) => {
+  const header = req.headers.authorization;
+  if (header?.startsWith('Bearer ')) {
+    try { req.user = jwt.verify(header.split(' ')[1], SECRET); } catch {}
+  }
+  next();
+};

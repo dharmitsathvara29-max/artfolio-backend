@@ -1,24 +1,11 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const LikeSchema = new mongoose.Schema(
-  {
-    artwork: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Artwork',
-      required: [true, 'Artwork reference is required']
-    },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Artist',
-      required: [true, 'User reference is required']
-    }
-  },
-  {
-    timestamps: true
-  }
-);
+const LikeSchema = new Schema({
+  artwork: { type: Schema.Types.ObjectId, ref: 'Artwork', required: true },
+  user:    { type: Schema.Types.ObjectId, ref: 'Artist',  required: true }
+}, { timestamps: true });
 
-// Compound unique index ensuring a user can only like an artwork once
+// Prevents a user from liking the same artwork twice
 LikeSchema.index({ artwork: 1, user: 1 }, { unique: true });
 
-module.exports = mongoose.model('Like', LikeSchema);
+module.exports = model('Like', LikeSchema);
