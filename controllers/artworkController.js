@@ -42,10 +42,18 @@ exports.getArtworkById = async (req, res, next) => {
 exports.createArtwork = async (req, res, next) => {
   try {
     const { title, description, tags, category, price } = req.body;
-    const imageUrl = req.file
-      ? await uploadImageBuffer(req.file.buffer, req.file.originalname, req.file.mimetype)
-      : req.body.imageUrl;
-    if (!imageUrl) return res.status(400).json({ success: false, message: 'Image is required' });
+
+    let imageUrl;
+    if (req.file) {
+      // Real file upload → Supabase Storage
+      imageUrl = await uploadImageBuffer(req.file.buffer, req.file.originalname, req.file.mimetype);
+    } else if (req.body.imageUrl) {
+      // Direct URL provided (for Swagger/Postman testing)
+      imageUrl = req.body.imageUrl;
+    } else {
+      // No image at all → use placeholder so testing always works
+      imageUrl = 'https://placehold.co/800x600/1a1a2e/ffffff?text=ArtFolio+Artwork';
+    }
 
     const artwork = await Artwork.create({
       title, description, tags: parseTags(tags),

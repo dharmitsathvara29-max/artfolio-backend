@@ -89,14 +89,15 @@ router.get('/:id', ctrl.getArtworkById);
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required: [title, description, image]
+ *             required: [title, description]
  *             properties:
  *               title:       { type: string, example: Sunset Dreams }
  *               description: { type: string, example: Atmospheric neon twilight landscape }
  *               tags:        { type: string, example: "nature, landscape, sunset" }
  *               category:    { type: string, example: Digital Painting }
  *               price:       { type: number, example: 5000 }
- *               image:       { type: string, format: binary }
+ *               imageUrl:    { type: string, example: "https://placehold.co/800x600?text=MyArtwork", description: "Direct image URL — use this for testing without uploading a file" }
+ *               image:       { type: string, format: binary, description: "Upload real image file — uses Supabase Storage" }
  *     responses:
  *       201:
  *         description: Artwork submitted for moderation
