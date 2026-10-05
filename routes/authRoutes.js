@@ -8,7 +8,7 @@ const registerRules = [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Valid email required'),
   body('password').isLength({ min: 6 }).withMessage('Password min 6 chars'),
-  body('role').optional().isIn(['artist', 'visitor'])
+  body('role').optional().isIn(['artist', 'visitor']).withMessage('Role must be artist or visitor (admin accounts are created via server script)')
 ];
 const loginRules = [
   body('email').isEmail().withMessage('Valid email required'),
@@ -26,7 +26,10 @@ const loginRules = [
  * @swagger
  * /api/auth/register:
  *   post:
- *     summary: Register a new user (artist or visitor)
+ *     summary: Register a new user (artist or visitor only)
+ *     description: |
+ *       Creates a new account. Role must be `artist` or `visitor`.
+ *       **Admin accounts cannot be registered via API** — use the server script instead.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -39,7 +42,7 @@ const loginRules = [
  *               name:        { type: string, example: Maya Lin }
  *               email:       { type: string, example: maya@artfolio.com }
  *               password:    { type: string, example: Password123! }
- *               role:        { type: string, enum: [artist, visitor], default: visitor }
+ *               role:        { type: string, enum: [artist, visitor], default: visitor, description: "Use artist to upload artworks. Admin role not allowed here." }
  *               bio:         { type: string, example: Digital landscape artist }
  *               portfolioTags: { type: array, items: { type: string }, example: [landscape, digital] }
  *     responses:
