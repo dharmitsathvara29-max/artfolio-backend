@@ -1,10 +1,5 @@
 # 🎨 ArtFolio — Digital Art Portfolio & Gallery Backend
 
-[![Node.js](https://img.shields.io/badge/Node.js-v18%2B-green.svg)](https://nodejs.org/)
-[![Express.js](https://img.shields.io/badge/Express.js-4.x-black.svg)](https://expressjs.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-brightgreen.svg)](https://mongoosejs.com/)
-[![Firebase](https://img.shields.io/badge/Firebase-Admin%20%26%20Storage-orange.svg)](https://firebase.google.com/)
-[![Socket.io](https://img.shields.io/badge/Socket.io-v4-blue.svg)](https://socket.io/)
 
 A complete, production-ready backend for **ArtFolio** — a digital art portfolio and gallery platform. ArtFolio enables artists to showcase their creations, manage custom commission requests, simulate print sales with earnings analytics, and interact with visitors through comments and likes with real-time Socket.io notifications.
 
